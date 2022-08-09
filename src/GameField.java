@@ -10,6 +10,12 @@ public class GameField extends JPanel implements ActionListener {
     private final int SIZE = 640;
     private final int DOT_SIZE = 32;
     private final int ALL_DOTS = (SIZE / DOT_SIZE) * (SIZE / DOT_SIZE);
+    private final int DEFAULT_PIZZA_LIFE = 25;
+    final int R = 66;
+    final int G = 194;
+    final int B = 110;
+    final Paint p = new GradientPaint(0.0f, 0.0f, new Color(R, G, B, 100),
+            getWidth(), getHeight(), new Color(R, G, B, 200), true);
     private Image dot;
     private Image apple;
     private Image snake_head_up;
@@ -27,17 +33,22 @@ public class GameField extends JPanel implements ActionListener {
     private int dots;
     private int score = 0;
     private int tickSpeed = 150;
+    private int current_pizza_life;
     private Timer timer;
     private boolean left = false;
     private boolean right = false;
     private boolean up = true;
     private boolean down = false;
     private boolean inGame = true;
-    private boolean is_drawed = false;
+    private boolean is_painted_frame = false;
     private boolean pizza_exist = false;
 
 
     public GameField() {
+        for (int i = 0; i < ALL_DOTS; i++) {
+            snakesY[i] = -100;
+            snakesX[i] = -100;
+        }
         setBackground(Color.black);
         loadImages();
         initGame();
@@ -76,25 +87,26 @@ public class GameField extends JPanel implements ActionListener {
         pizza = iic.getImage();
 
 
-
     }
-    public void createpizza() {
+
+    public void createPizza() {
+        current_pizza_life = DEFAULT_PIZZA_LIFE;
         boolean is_crossing = true;
         while (is_crossing) {
             is_crossing = false;
             pizzaX = new Random().nextInt(18) * DOT_SIZE;
             pizzaY = (new Random().nextInt(17) + 1) * DOT_SIZE;
             pizza_exist = true;
-            if (appleX == pizzaX && appleY == pizzaY){
+            if (appleX == pizzaX && appleY == pizzaY) {
                 is_crossing = true;
             }
-            if (appleX == pizzaX + DOT_SIZE && appleY == pizzaY){
+            if (appleX == pizzaX + DOT_SIZE && appleY == pizzaY) {
                 is_crossing = true;
             }
-            if (appleX == pizzaX && appleY == pizzaY + DOT_SIZE){
+            if (appleX == pizzaX && appleY == pizzaY + DOT_SIZE) {
                 is_crossing = true;
             }
-            if (appleX == pizzaX + DOT_SIZE && appleY == pizzaY + DOT_SIZE){
+            if (appleX == pizzaX + DOT_SIZE && appleY == pizzaY + DOT_SIZE) {
                 is_crossing = true;
             }
             for (int i = 0; i < dots; i++) {
@@ -122,16 +134,16 @@ public class GameField extends JPanel implements ActionListener {
                     is_crossing = true;
             }
             if (pizza_exist) {
-                if (appleX == pizzaX && appleY == pizzaY){
+                if (appleX == pizzaX && appleY == pizzaY) {
                     is_crossing = true;
                 }
-                if (appleX == pizzaX + DOT_SIZE && appleY == pizzaY){
+                if (appleX == pizzaX + DOT_SIZE && appleY == pizzaY) {
                     is_crossing = true;
                 }
-                if (appleX == pizzaX && appleY == pizzaY + DOT_SIZE){
+                if (appleX == pizzaX && appleY == pizzaY + DOT_SIZE) {
                     is_crossing = true;
                 }
-                if (appleX == pizzaX + DOT_SIZE && appleY == pizzaY + DOT_SIZE){
+                if (appleX == pizzaX + DOT_SIZE && appleY == pizzaY + DOT_SIZE) {
                     is_crossing = true;
                 }
             }
@@ -162,12 +174,24 @@ public class GameField extends JPanel implements ActionListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        is_drawed = true;
+        System.out.println("current_pizza_life = " + current_pizza_life);
+        if (pizza_exist && current_pizza_life > 0) {
+            current_pizza_life--;
+        } else if (pizza_exist) {
+            pizza_exist = false;
+        }
+        is_painted_frame = true;
         if (inGame) {
+
+
             g.drawImage(header, 0, 0, this);
             g.drawImage(apple, appleX, appleY, this);
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setPaint(p);
+            g2d.setColor(new Color(255,0,0));
             if (pizza_exist) {
                 g.drawImage(pizza, pizzaX, pizzaY, this);
+                g2d.fillRect(200, 10, current_pizza_life * 10, 15);
             }
             for (int i = 0; i < dots; i++) {
                 if (i == 0) {
@@ -203,33 +227,36 @@ public class GameField extends JPanel implements ActionListener {
 
     }
 
-    public void checkpizza() {
+    public void checkPizza() {
         if (pizza_exist) {
             if (snakesX[0] == pizzaX && snakesY[0] == pizzaY) {
                 dots += 2;
                 pizza_exist = false;
                 score += 2;
+                current_pizza_life = DEFAULT_PIZZA_LIFE;
             }
             if (snakesX[0] == pizzaX + DOT_SIZE && snakesY[0] == pizzaY) {
                 dots += 2;
                 pizza_exist = false;
                 score += 2;
+                current_pizza_life = DEFAULT_PIZZA_LIFE;
             }
             if (snakesX[0] == pizzaX && snakesY[0] == pizzaY + DOT_SIZE) {
                 dots += 2;
                 pizza_exist = false;
                 score += 2;
+                current_pizza_life = DEFAULT_PIZZA_LIFE;
             }
             if (snakesX[0] == pizzaX + DOT_SIZE && snakesY[0] == pizzaY + DOT_SIZE) {
                 dots += 2;
                 pizza_exist = false;
                 score += 2;
+                current_pizza_life = DEFAULT_PIZZA_LIFE;
             }
         }
     }
 
     public void checkApple() {
-        System.out.println(tickSpeed);
         if (snakesX[0] == appleX && snakesY[0] == appleY) {
             dots++;
             createApple();
@@ -239,10 +266,10 @@ public class GameField extends JPanel implements ActionListener {
                 timer.setDelay(tickSpeed);
             }
             if (!pizza_exist) {
-//                int pizza_chance = new Random().nextInt(5);
-//                if (pizza_chance == 1) {
-                    createpizza();
-//                }
+                int pizza_chance = new Random().nextInt(10);
+                if (pizza_chance < 4) {
+                    createPizza();
+                }
             }
         }
 
@@ -277,7 +304,7 @@ public class GameField extends JPanel implements ActionListener {
             move();
             checkApple();
             checkCollisions();
-            checkpizza();
+            checkPizza();
         }
         repaint();
     }
@@ -286,8 +313,8 @@ public class GameField extends JPanel implements ActionListener {
         @Override
         public void keyPressed(KeyEvent e) {
             super.keyPressed(e);
-            if (is_drawed) {
-                is_drawed = false;
+            if (is_painted_frame) {
+                is_painted_frame = false;
                 int key = e.getKeyCode();
                 if (key == KeyEvent.VK_LEFT && !right) {
                     left = true;
