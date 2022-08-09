@@ -24,6 +24,7 @@ public class GameField extends JPanel implements ActionListener {
     private Image snake_head_right;
     private Image header;
     private Image pizza;
+    private Image fon;
     private int appleX;
     private int appleY;
     private int pizzaX;
@@ -85,6 +86,8 @@ public class GameField extends JPanel implements ActionListener {
         header = iih.getImage();
         ImageIcon iic = new ImageIcon("pizza.png");
         pizza = iic.getImage();
+        ImageIcon iif = new ImageIcon("fon.png");
+        fon = iif.getImage();
 
 
     }
@@ -174,7 +177,7 @@ public class GameField extends JPanel implements ActionListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        System.out.println("current_pizza_life = " + current_pizza_life);
+        g.drawImage(fon,0, 0 ,this);
         if (pizza_exist && current_pizza_life > 0) {
             current_pizza_life--;
         } else if (pizza_exist) {
@@ -188,7 +191,7 @@ public class GameField extends JPanel implements ActionListener {
             g.drawImage(apple, appleX, appleY, this);
             Graphics2D g2d = (Graphics2D) g;
             g2d.setPaint(p);
-            g2d.setColor(new Color(255,0,0));
+            g2d.setColor(new Color(255, 0, 0));
             if (pizza_exist) {
                 g.drawImage(pizza, pizzaX, pizzaY, this);
                 g2d.fillRect(200, 10, current_pizza_life * 10, 15);
