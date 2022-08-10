@@ -50,12 +50,27 @@ public class GameField extends JPanel implements ActionListener {
 
 
     public GameField() {
+        int cnt = 0;
         for (int j = 0; j < ALL_OBSTRUCTIONS; j++) {
             boolean is_crossing = true;
             while (is_crossing) {
                 is_crossing = false;
-                obstrX[j] = new Random().nextInt(19) * DOT_SIZE;
-                obstrY[j] = (new Random().nextInt(18) + 1) * DOT_SIZE;
+                if (cnt % 4 == 0) {
+                    obstrX[j] = new Random().nextInt(10) * DOT_SIZE;
+                    obstrY[j] = (new Random().nextInt(9) + 1) * DOT_SIZE;
+                }
+                if (cnt % 4 == 1) {
+                    obstrX[j] = (new Random().nextInt(9) + 10) * DOT_SIZE;
+                    obstrY[j] = (new Random().nextInt(9) + 1) * DOT_SIZE;
+                }
+                if (cnt % 4 == 2) {
+                    obstrX[j] = new Random().nextInt(10) * DOT_SIZE;
+                    obstrY[j] = (new Random().nextInt(9) + 10) * DOT_SIZE;
+                }
+                if (cnt % 4 == 3) {
+                    obstrX[j] = (new Random().nextInt(9) + 10) * DOT_SIZE;
+                    obstrY[j] = (new Random().nextInt(9) + 10) * DOT_SIZE;
+                }
                 for (int i = 0; i < j; i++) {
                     if (obstrX[j] == obstrX[i] && obstrY[j] == obstrY[i]) {
                         is_crossing = true;
@@ -63,6 +78,7 @@ public class GameField extends JPanel implements ActionListener {
                     }
                 }
             }
+            cnt++;
         }
         for (int i = 0; i < ALL_DOTS; i++) {
             snakesY[i] = -100;
