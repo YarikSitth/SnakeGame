@@ -10,7 +10,8 @@ public class GameField extends JPanel implements ActionListener {
     private final int SIZE = 640;
     private final int DOT_SIZE = 32;
     private final int ALL_DOTS = (SIZE / DOT_SIZE) * (SIZE / DOT_SIZE);
-    private final int DEFAULT_PIZZA_LIFE = 25;
+    private final int DEFAULT_PIZZA_LIFE = 30;
+    private final int ALL_OBSTRUCTIONS = 4;
     final int R = 66;
     final int G = 194;
     final int B = 110;
@@ -25,12 +26,15 @@ public class GameField extends JPanel implements ActionListener {
     private Image header;
     private Image pizza;
     private Image fon;
+    private Image garbage;
     private int appleX;
     private int appleY;
     private int pizzaX;
     private int pizzaY;
     private int[] snakesX = new int[ALL_DOTS];
     private int[] snakesY = new int[ALL_DOTS];
+    private int[] obstrX = new int[ALL_OBSTRUCTIONS];
+    private int[] obstrY = new int[ALL_OBSTRUCTIONS];
     private int dots;
     private int score = 0;
     private int tickSpeed = 150;
@@ -46,6 +50,20 @@ public class GameField extends JPanel implements ActionListener {
 
 
     public GameField() {
+        for (int j = 0; j < ALL_OBSTRUCTIONS; j++) {
+            boolean is_crossing = true;
+            while (is_crossing) {
+                is_crossing = false;
+                obstrX[j] = new Random().nextInt(19) * DOT_SIZE;
+                obstrY[j] = (new Random().nextInt(18) + 1) * DOT_SIZE;
+                for (int i = 0; i < j; i++) {
+                    if (obstrX[j] == obstrX[i] && obstrY[j] == obstrY[i]) {
+                        is_crossing = true;
+                        break;
+                    }
+                }
+            }
+        }
         for (int i = 0; i < ALL_DOTS; i++) {
             snakesY[i] = -100;
             snakesX[i] = -100;
@@ -88,6 +106,8 @@ public class GameField extends JPanel implements ActionListener {
         pizza = iic.getImage();
         ImageIcon iif = new ImageIcon("fon.png");
         fon = iif.getImage();
+        ImageIcon iig = new ImageIcon("garbage.png");
+        garbage = iig.getImage();
 
 
     }
@@ -122,6 +142,16 @@ public class GameField extends JPanel implements ActionListener {
                 if (pizzaX + DOT_SIZE == snakesX[i] && pizzaY + DOT_SIZE == snakesY[i])
                     is_crossing = true;
             }
+            for (int i = 0; i < ALL_OBSTRUCTIONS; i++) {
+                if (pizzaX == obstrX[i] && pizzaY == obstrY[i])
+                    is_crossing = true;
+                if (pizzaX + DOT_SIZE == obstrX[i] && pizzaY == obstrY[i])
+                    is_crossing = true;
+                if (pizzaX == obstrX[i] && pizzaY + DOT_SIZE == obstrY[i])
+                    is_crossing = true;
+                if (pizzaX + DOT_SIZE == obstrX[i] && pizzaY + DOT_SIZE == obstrY[i])
+                    is_crossing = true;
+            }
         }
 
     }
@@ -147,6 +177,11 @@ public class GameField extends JPanel implements ActionListener {
                     is_crossing = true;
                 }
                 if (appleX == pizzaX + DOT_SIZE && appleY == pizzaY + DOT_SIZE) {
+                    is_crossing = true;
+                }
+            }
+            for (int i = 0; i < ALL_OBSTRUCTIONS; i++) {
+                if (appleX == obstrX[i] && appleY == obstrY[i]){
                     is_crossing = true;
                 }
             }
@@ -177,7 +212,7 @@ public class GameField extends JPanel implements ActionListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(fon,0, 0 ,this);
+        g.drawImage(fon, 0, 0, this);
         if (pizza_exist && current_pizza_life > 0) {
             current_pizza_life--;
         } else if (pizza_exist) {
@@ -188,6 +223,9 @@ public class GameField extends JPanel implements ActionListener {
 
 
             g.drawImage(header, 0, 0, this);
+            for (int i = 0; i < ALL_OBSTRUCTIONS; i++) {
+                g.drawImage(garbage, obstrX[i], obstrY[i], this);
+            }
             g.drawImage(apple, appleX, appleY, this);
             Graphics2D g2d = (Graphics2D) g;
             g2d.setPaint(p);
@@ -297,6 +335,11 @@ public class GameField extends JPanel implements ActionListener {
         if (snakesY[0] < DOT_SIZE) {
             snakesY[0] = SIZE - DOT_SIZE;
         }
+        for (int i = 0; i < ALL_OBSTRUCTIONS; i++) {
+            if (snakesX[0] == obstrX[i] && snakesY[0] == obstrY[i]) {
+                inGame = false;
+            }
+        }
 
     }
 
@@ -345,4 +388,5 @@ public class GameField extends JPanel implements ActionListener {
         }
 
     }
+
 }
