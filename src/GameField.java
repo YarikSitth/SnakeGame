@@ -40,6 +40,7 @@ public class GameField extends JPanel implements ActionListener {
     private int tickSpeed = 150;
     private int current_pizza_life;
     private Timer timer;
+    private boolean isOnPause = false;
     private boolean left = false;
     private boolean right = false;
     private boolean up = true;
@@ -237,7 +238,13 @@ public class GameField extends JPanel implements ActionListener {
         is_painted_frame = true;
         if (inGame) {
 
-
+            if (isOnPause) {
+                String pauseText = "Pause";
+                Font f = new Font("TimesRoman", Font.BOLD, 70);
+                g.setColor(Color.red);
+                g.setFont(f);
+                g.drawString(pauseText, 190, SIZE / 2 + 30);
+            }
             g.drawImage(header, 0, 0, this);
             for (int i = 0; i < ALL_OBSTRUCTIONS; i++) {
                 g.drawImage(garbage, obstrX[i], obstrY[i], this);
@@ -362,7 +369,7 @@ public class GameField extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (inGame) {
+        if (inGame && !isOnPause) {
             move();
             checkApple();
             checkCollisions();
@@ -375,9 +382,12 @@ public class GameField extends JPanel implements ActionListener {
         @Override
         public void keyPressed(KeyEvent e) {
             super.keyPressed(e);
-            if (is_painted_frame) {
+            int key = e.getKeyCode();
+            if (key == KeyEvent.VK_SPACE) {
+                isOnPause = !isOnPause;
+            }
+            if (is_painted_frame  && !isOnPause) {
                 is_painted_frame = false;
-                int key = e.getKeyCode();
                 if (key == KeyEvent.VK_LEFT && !right) {
                     left = true;
                     up = false;
